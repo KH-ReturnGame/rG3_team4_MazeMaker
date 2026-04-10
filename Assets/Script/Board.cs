@@ -16,7 +16,8 @@ public class Board : MonoBehaviour
         {
             if (slot.childCount == 0)
             {
-                Instantiate(tilePrefab, slot.position, Quaternion.identity, slot);
+                GameObject instance = Instantiate(tilePrefab, slot.position, Quaternion.identity);
+                instance.transform.SetParent(slot);
             }
         }
     }
