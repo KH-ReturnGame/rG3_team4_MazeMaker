@@ -20,6 +20,11 @@ public class Object : MonoBehaviour
 
     void OnMouseUp()
     {
-        Destroy(this); // 스크립트 컴포넌트만 제거
+        // 현재 위치에서 가장 가까운 셀 중앙으로 스냅
+        float snappedX = Mathf.Floor(transform.position.x) + 0.5f;
+        float snappedY = Mathf.Floor(transform.position.y) + 0.5f;
+        transform.position = new Vector3(snappedX, snappedY, 0);
+
+        Destroy(this);
     }
 }
