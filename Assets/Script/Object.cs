@@ -20,7 +20,7 @@ public class Object : MonoBehaviour
 
     void OnMouseUp()
     {
-        // 현재 위치에서 가장 가까운 셀 중앙으로 스냅
+        // 현재 위치에서 가장 가까운 셀 중앙에 정렬(타일맵 이용 안함-수정 가능성 O)
         float snappedX = Mathf.Floor(transform.position.x) + 0.5f;
         float snappedY = Mathf.Floor(transform.position.y) + 0.5f;
         transform.position = new Vector3(snappedX, snappedY, 0);
