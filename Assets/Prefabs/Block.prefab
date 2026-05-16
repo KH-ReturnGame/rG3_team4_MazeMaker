@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3576857865539275598}
   - component: {fileID: 2922008705164273424}
   - component: {fileID: 5308949477084881824}
+  - component: {fileID: -2123837741825162335}
   m_Layer: 0
   m_Name: Block
   m_TagString: Untagged
@@ -105,6 +106,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7da0f3f2fd977547a286c142263fc43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Object
+  tiledata: {fileID: 0}
 --- !u!61 &5308949477084881824
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -151,3 +153,17 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &-2123837741825162335
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2963598434542922479}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aca4da0355d4f114d95cc4009d660607, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Tile
+  type: 0
+  point: 0
