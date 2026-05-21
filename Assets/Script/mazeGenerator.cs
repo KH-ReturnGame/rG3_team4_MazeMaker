@@ -7,12 +7,12 @@ public class MazeAutoGenerator : MonoBehaviour
     public GameObject obstaclePrefab;
     public GameObject boostPrefab;
 
-    public float cellSize = 1.0f;
+    public float cellSize = 0.5f;
 
-    private float mapMinX = -9.5f;
-    private float mapMaxX = 4.5f;
-    private float mapMinY = -5.0f;
-    private float mapMaxY = 4.5f;
+    private float mapMinX = -9.0f;
+    private float mapMaxX = 5.0f;
+    private float mapMinY = -4.5f;
+    private float mapMaxY = 5.0f;
 
     private int cols;
     private int rows;
@@ -30,6 +30,7 @@ public class MazeAutoGenerator : MonoBehaviour
         rows = Mathf.RoundToInt((mapMaxY - mapMinY) / cellSize);
 
         GenerateMaze();
+        SaveMazeData();//씬 넘어갈 때 판 저장용
         PlaceTiles();
     }
 
@@ -78,21 +79,16 @@ public class MazeAutoGenerator : MonoBehaviour
         {
             for (int y = 0; y < rows; y++)
             {
-                float wx = mapMinX + x * cellSize + cellSize;
-                float wy = mapMinY + y * cellSize + cellSize;
+                float wx = mapMinX + x * cellSize;
+                float wy = mapMinY + y * cellSize;
                 Vector3 pos = new Vector3(wx, wy, 0);
 
-                GameObject prefab;
+                int idx = x + y * cols;
+                int type = mazeData.tileTypes[idx];
 
-                if (isWall[x, y])
-                {
-                    prefab = blockPrefab;
-                }
-                else
-                {
-                    // 통로 칸은 Obstacle/Boost 랜덤, 혹은 비워둘 수도 있음
-                    prefab = Random.value > 0.5f ? obstaclePrefab : boostPrefab;
-                }
+                GameObject prefab = type == 0 ? blockPrefab
+                                  : type == 1 ? obstaclePrefab
+                                  : boostPrefab;
 
                 GameObject instance = Instantiate(prefab, pos, Quaternion.identity);
                 spawnedObjects.Add(instance);
@@ -106,6 +102,30 @@ public class MazeAutoGenerator : MonoBehaviour
         {
             int j = Random.Range(0, i + 1);
             (arr[i], arr[j]) = (arr[j], arr[i]);
+        }
+    }
+
+    public MazeData mazeData;
+
+    void SaveMazeData()
+    {
+        mazeData.cols = cols;
+        mazeData.rows = rows;
+        mazeData.isWall = new bool[cols * rows];
+        mazeData.tileTypes = new int[cols * rows];
+
+        for (int x = 0; x < cols; x++)
+        {
+            for (int y = 0; y < rows; y++)
+            {
+                int idx = x + y * cols;
+                mazeData.isWall[idx] = isWall[x, y];
+
+                if (isWall[x, y])
+                    mazeData.tileTypes[idx] = 0; // Block
+                else
+                    mazeData.tileTypes[idx] = Random.value > 0.5f ? 1 : 2; // Obstacle 또는 Boost
+            }
         }
     }
 }
