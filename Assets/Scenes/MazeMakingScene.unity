@@ -151,6 +151,9 @@ MonoBehaviour:
   blockPrefab: {fileID: 2963598434542922479, guid: a3ce45fcfeabaef439a5b29dc0328734, type: 3}
   obstaclePrefab: {fileID: 2963598434542922479, guid: c730df99d72918c489c0632352b4aa83, type: 3}
   boostPrefab: {fileID: 2963598434542922479, guid: 6ed1a0564303ba644b81fa6fb86db217, type: 3}
+  emptyPrefab: {fileID: 0}
+  startPointerPrefab: {fileID: 0}
+  endPointerPrefab: {fileID: 0}
   cellSize: 0.5
   mazeData: {fileID: 11400000, guid: ec5d0f2f525e9b94a815f84c5fed5e50, type: 2}
 --- !u!4 &18143563
