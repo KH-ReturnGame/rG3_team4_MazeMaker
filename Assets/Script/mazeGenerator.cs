@@ -15,8 +15,8 @@ public class MazeAutoGenerator : MonoBehaviour
 
     public float cellSize = 0.5f;
 
-    private float mapMinX = -9.0f;
-    private float mapMaxX = 5.0f;
+    private float mapMinX = -6.5f;
+    private float mapMaxX = 7f;
     private float mapMinY = -4.5f;
     private float mapMaxY = 5.0f;
 
