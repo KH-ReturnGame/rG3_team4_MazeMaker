@@ -149,7 +149,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MazeGenerator
   blockPrefab: {fileID: 2963598434542922479, guid: a3ce45fcfeabaef439a5b29dc0328734, type: 3}
-  emptyPrefab: {fileID: 0}
   startPointerPrefab: {fileID: 0}
   endPointerPrefab: {fileID: 0}
   aiPointerPrefab: {fileID: 0}

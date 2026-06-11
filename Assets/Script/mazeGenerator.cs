@@ -4,7 +4,6 @@ using System.Collections.Generic;
 public class MazeAutoGenerator : MonoBehaviour
 {
     public GameObject blockPrefab;
-    public GameObject emptyPrefab;
 
     [Header("Pointer Prefabs")]
     public GameObject startPointerPrefab;
@@ -18,7 +17,7 @@ public class MazeAutoGenerator : MonoBehaviour
     private float mapMinX = -6.5f;
     private float mapMaxX = 7f;
     private float mapMinY = -4.5f;
-    private float mapMaxY = 5.0f;
+    private float mapMaxY = 5f;
 
     private int cols;
     private int rows;
@@ -61,17 +60,14 @@ public class MazeAutoGenerator : MonoBehaviour
     {
         isWall = new bool[cols, rows];
 
-        playerStart =
-            new Vector2Int(0, rows / 2);
+        // 시작점 및 목표 설정
+        playerStart = new Vector2Int(0, 0);
+        goal = new Vector2Int(cols / 2, rows / 2);
+        aiStart = new Vector2Int(cols - 1, rows - 1);
 
-        goal =
-            new Vector2Int(cols / 2, rows / 2);
+        float blockRate = 0.15f;
 
-        aiStart =
-            new Vector2Int(cols - 1, rows / 2);
-
-        float blockRate = 0.25f;
-
+        // 랜덤 벽 생성
         for (int x = 0; x < cols; x++)
         {
             for (int y = 0; y < rows; y++)
@@ -81,6 +77,7 @@ public class MazeAutoGenerator : MonoBehaviour
             }
         }
 
+        // 시작점과 목표는 반드시 빈칸
         isWall[playerStart.x,
                playerStart.y] = false;
 
@@ -90,18 +87,57 @@ public class MazeAutoGenerator : MonoBehaviour
         isWall[aiStart.x,
                aiStart.y] = false;
 
-        for (int x = goal.x - 1;
-            x <= goal.x + 1;
-            x++)
+        // 플레이어 시작점 주변 확보 (왼쪽 아래)
+        for (int x = playerStart.x;
+             x <= playerStart.x + 1;
+             x++)
         {
-            for (int y = goal.y - 1;
-                y <= goal.y + 1;
-                y++)
+            for (int y = playerStart.y;
+                 y <= playerStart.y + 1;
+                 y++)
             {
                 if (x >= 0 &&
-                   x < cols &&
-                   y >= 0 &&
-                   y < rows)
+                    x < cols &&
+                    y >= 0 &&
+                    y < rows)
+                {
+                    isWall[x, y] = false;
+                }
+            }
+        }
+
+        // AI 시작점 주변 확보 (오른쪽 위)
+        for (int x = aiStart.x - 1;
+             x <= aiStart.x;
+             x++)
+        {
+            for (int y = aiStart.y - 1;
+                 y <= aiStart.y;
+                 y++)
+            {
+                if (x >= 0 &&
+                    x < cols &&
+                    y >= 0 &&
+                    y < rows)
+                {
+                    isWall[x, y] = false;
+                }
+            }
+        }
+
+        // 목표 주변 확보 (3×3)
+        for (int x = goal.x - 1;
+             x <= goal.x + 1;
+             x++)
+        {
+            for (int y = goal.y - 1;
+                 y <= goal.y + 1;
+                 y++)
+            {
+                if (x >= 0 &&
+                    x < cols &&
+                    y >= 0 &&
+                    y < rows)
                 {
                     isWall[x, y] = false;
                 }
@@ -120,23 +156,14 @@ public class MazeAutoGenerator : MonoBehaviour
         mazeData.tileTypes =
             new int[cols * rows];
 
-        mazeData.startX =
-            playerStart.x;
+        mazeData.startX = playerStart.x;
+        mazeData.startY = playerStart.y;
 
-        mazeData.startY =
-            playerStart.y;
+        mazeData.endX = goal.x;
+        mazeData.endY = goal.y;
 
-        mazeData.endX =
-            goal.x;
-
-        mazeData.endY =
-            goal.y;
-
-        mazeData.aiStartX =
-            aiStart.x;
-
-        mazeData.aiStartY =
-            aiStart.y;
+        mazeData.aiStartX = aiStart.x;
+        mazeData.aiStartY = aiStart.y;
 
         for (int x = 0; x < cols; x++)
         {
@@ -161,12 +188,8 @@ public class MazeAutoGenerator : MonoBehaviour
             {
                 int idx = x + y * cols;
 
-                GameObject prefab =
-                    mazeData.tileTypes[idx] == 0
-                    ? blockPrefab
-                    : emptyPrefab;
-
-                if (prefab == null)
+                // 벽만 생성
+                if (mazeData.tileTypes[idx] != 0)
                     continue;
 
                 Vector3 pos =
@@ -174,7 +197,7 @@ public class MazeAutoGenerator : MonoBehaviour
 
                 GameObject obj =
                     Instantiate(
-                        prefab,
+                        blockPrefab,
                         pos,
                         Quaternion.identity);
 

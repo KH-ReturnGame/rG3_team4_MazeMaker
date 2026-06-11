@@ -204,8 +204,8 @@ Transform:
   m_GameObject: {fileID: 224097509}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.24, y: 0, z: 0}
-  m_LocalScale: {x: 13.99, y: 9.5278, z: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 13.75, y: 9.47, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -348,9 +348,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MazeLoader
   mazeData: {fileID: 11400000, guid: ec5d0f2f525e9b94a815f84c5fed5e50, type: 2}
   blockPrefab: {fileID: 2963598434542922479, guid: a3ce45fcfeabaef439a5b29dc0328734, type: 3}
-  obstaclePrefab: {fileID: 2963598434542922479, guid: c730df99d72918c489c0632352b4aa83, type: 3}
-  boostPrefab: {fileID: 2963598434542922479, guid: 6ed1a0564303ba644b81fa6fb86db217, type: 3}
-  emptyPrefab: {fileID: 0}
+  playerPrefab: {fileID: 399642060}
+  aiPrefab: {fileID: 1607887135}
+  goalPrefab: {fileID: 1083340820}
 --- !u!4 &929470182
 Transform:
   m_ObjectHideFlags: 0
@@ -528,7 +528,7 @@ Transform:
   m_GameObject: {fileID: 1083340820}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4, y: 4.5, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -639,10 +639,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TestAIController
   mazeData: {fileID: 11400000, guid: ec5d0f2f525e9b94a815f84c5fed5e50, type: 2}
-  startPoint: {fileID: 1723271884}
-  endPoint: {fileID: 1083340821}
   moveSpeed: 3
   cellSize: 0.5
+  movePerSearch: 5
 --- !u!1 &1614060607
 GameObject:
   m_ObjectHideFlags: 0
@@ -704,7 +703,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1723271884
 Transform:
   m_ObjectHideFlags: 0
