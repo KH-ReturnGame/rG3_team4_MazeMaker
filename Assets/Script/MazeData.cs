@@ -5,14 +5,19 @@ public class MazeData : ScriptableObject
 {
     public int cols;
     public int rows;
-    public bool[] isWall;
-    public int[] tileTypes;  // 0=Block, 1=Obstacle, 2=Boost, 3=Empty
 
+    public bool[] isWall;
+    public int[] tileTypes;
+
+    // 플레이어 시작점
     public int startX;
     public int startY;
+
+    // 목표점
     public int endX;
     public int endY;
 
-    public int totalBudget = 5000;
-    public int usedCost;
+    // AI 시작점
+    public int aiStartX;
+    public int aiStartY;
 }

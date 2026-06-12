@@ -3,40 +3,102 @@ using UnityEngine;
 public class MazeLoader : MonoBehaviour
 {
     public MazeData mazeData;
-    public GameObject blockPrefab;
-    public GameObject obstaclePrefab;
-    public GameObject boostPrefab;
-    public GameObject emptyPrefab; // 없으면 null로 두면 스킵됨
 
-    private float mapMinX = -9.0f;
+    public GameObject blockPrefab;
+
+    public GameObject playerPrefab;
+    public GameObject aiPrefab;
+    public GameObject goalPrefab;
+
+    private float mapMinX = -6.5f;
     private float mapMinY = -4.5f;
+
     private float cellSize = 0.5f;
 
     void Start()
     {
         LoadMaze();
+        SpawnCharacters();
     }
 
     void LoadMaze()
     {
+        if (mazeData == null)
+        {
+            Debug.LogError("MazeData가 연결되지 않았습니다.");
+            return;
+        }
+
         for (int x = 0; x < mazeData.cols; x++)
         {
             for (int y = 0; y < mazeData.rows; y++)
             {
                 int idx = x + y * mazeData.cols;
+
                 int type = mazeData.tileTypes[idx];
 
-                GameObject prefab = type == 0 ? blockPrefab
-                                  : type == 1 ? obstaclePrefab
-                                  : type == 2 ? boostPrefab
-                                  : emptyPrefab; // type == 3
+                // 벽이 아니면 스킵
+                if (type != 0)
+                    continue;
 
-                if (prefab == null) continue; // emptyPrefab 없으면 스킵
+                float wx =
+                    mapMinX +
+                    x * cellSize;
 
-                float wx = mapMinX + x * cellSize;
-                float wy = mapMinY + y * cellSize;
-                Instantiate(prefab, new Vector3(wx, wy, 0), Quaternion.identity);
+                float wy =
+                    mapMinY +
+                    y * cellSize;
+
+                Instantiate(
+                    blockPrefab,
+                    new Vector3(wx, wy, 0),
+                    Quaternion.identity);
             }
+        }
+    }
+
+    void SpawnCharacters()
+    {
+        Vector3 playerPos =
+            new Vector3(
+                mapMinX + mazeData.startX * cellSize,
+                mapMinY + mazeData.startY * cellSize,
+                -1);
+
+        Vector3 aiPos =
+            new Vector3(
+                mapMinX + mazeData.aiStartX * cellSize,
+                mapMinY + mazeData.aiStartY * cellSize,
+                -1);
+
+        Vector3 goalPos =
+            new Vector3(
+                mapMinX + mazeData.endX * cellSize,
+                mapMinY + mazeData.endY * cellSize,
+                -1);
+
+        if (playerPrefab != null)
+        {
+            Instantiate(
+                playerPrefab,
+                playerPos,
+                Quaternion.identity);
+        }
+
+        if (aiPrefab != null)
+        {
+            Instantiate(
+                aiPrefab,
+                aiPos,
+                Quaternion.identity);
+        }
+
+        if (goalPrefab != null)
+        {
+            Instantiate(
+                goalPrefab,
+                goalPos,
+                Quaternion.identity);
         }
     }
 }

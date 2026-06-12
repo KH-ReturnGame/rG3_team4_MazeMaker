@@ -6,129 +6,216 @@ public class AI_BMK : MonoBehaviour
 {
     public MazeData mazeData;
 
-    public Transform startPoint;
-    public Transform endPoint;
-
     public float moveSpeed = 2f;
     public float cellSize = 0.5f;
 
-    private float mapMinX = -9.0f;
+    private float mapMinX = -6.5f;
     private float mapMinY = -4.5f;
 
-    private bool[,] visited;
-    private List<Vector2Int> path = new List<Vector2Int>();
+    public int movePerSearch = 5;
+
+    private Vector2Int goal;
 
     void Start()
     {
-        Debug.Log("AI Start");
+        goal = new Vector2Int(
+            mazeData.endX,
+            mazeData.endY
+        );
 
-        if (startPoint == null || endPoint == null)
+        Vector2Int start =
+            new Vector2Int(
+                mazeData.aiStartX,
+                mazeData.aiStartY
+            );
+
+        transform.position =
+            GridToWorld(start);
+
+        StartCoroutine(AILoop());
+    }
+
+    IEnumerator AILoop()
+    {
+        while (true)
         {
-            Debug.Log("StartPoint 또는 EndPoint 없음");
-            return;
-        }
+            Vector2Int current =
+                WorldToGrid(transform.position);
 
-        transform.position = startPoint.position;
+            if (current == goal)
+            {
+                Debug.Log("AI 도착!");
+                yield break;
+            }
 
-        int cols = mazeData.cols;
-        int rows = mazeData.rows;
+            List<Vector2Int> path =
+                FindPathBFS(current, goal);
 
-        visited = new bool[cols, rows];
+            if (path == null)
+            {
+                Debug.Log("길 없음");
+                yield return new WaitForSeconds(0.2f);
+                continue;
+            }
 
-        Vector2Int start = WorldToGrid(startPoint.position);
-        Vector2Int end = WorldToGrid(endPoint.position);
+            int moveCount =
+                Mathf.Min(
+                    movePerSearch,
+                    path.Count - 1
+                );
 
-        bool success = DFS(start.x, start.y, end);
+            for (int i = 1; i <= moveCount; i++)
+            {
+                yield return MoveToCell(path[i]);
+            }
 
-        Debug.Log("DFS 결과: " + success);
-        Debug.Log("Path Count: " + path.Count);
-
-        if (success)
-        {
-            StartCoroutine(MoveAlongPath());
+            yield return null;
         }
     }
 
-    bool DFS(int x, int y, Vector2Int end)
+    List<Vector2Int> FindPathBFS( //dfs가 계속 오류나서 임시로 bfs를 좀 쓰겠슴
+        Vector2Int start,
+        Vector2Int end)
     {
         int cols = mazeData.cols;
         int rows = mazeData.rows;
 
-        // 범위 체크
-        if (x < 0 || y < 0 || x >= cols || y >= rows)
-            return false;
+        bool[,] visited =
+            new bool[cols, rows];
 
-        // 이미 방문
-        if (visited[x, y])
-            return false;
+        Vector2Int[,] parent =
+            new Vector2Int[cols, rows];
 
-        int idx = x + y * cols;
+        Queue<Vector2Int> queue =
+            new Queue<Vector2Int>();
 
-        // 벽이면 못 감
-        if (mazeData.tileTypes[idx] == 0)
-            return false;
+        queue.Enqueue(start);
+        visited[start.x, start.y] = true;
 
-        visited[x, y] = true;
-
-        Vector2Int current = new Vector2Int(x, y);
-
-        path.Add(current);
-
-        // 도착
-        if (current == end)
-            return true;
-
-        // 상하좌우 탐색
         int[] dx = { 1, -1, 0, 0 };
         int[] dy = { 0, 0, 1, -1 };
 
-        for (int i = 0; i < 4; i++)
-        {
-            int nx = x + dx[i];
-            int ny = y + dy[i];
+        bool found = false;
 
-            if (DFS(nx, ny, end))
-                return true;
+        while (queue.Count > 0)
+        {
+            Vector2Int current =
+                queue.Dequeue();
+
+            if (current == end)
+            {
+                found = true;
+                break;
+            }
+
+            for (int i = 0; i < 4; i++)
+            {
+                int nx = current.x + dx[i];
+                int ny = current.y + dy[i];
+
+                if (nx < 0 ||
+                    ny < 0 ||
+                    nx >= cols ||
+                    ny >= rows)
+                    continue;
+
+                if (visited[nx, ny])
+                    continue;
+
+                int idx =
+                    nx + ny * cols;
+
+                if (mazeData.tileTypes[idx] == 0)
+                    continue;
+
+                visited[nx, ny] = true;
+
+                parent[nx, ny] =
+                    current;
+
+                queue.Enqueue(
+                    new Vector2Int(nx, ny));
+            }
         }
 
-        // 막다른 길이면 경로 제거
-        path.RemoveAt(path.Count - 1);
+        if (!found)
+            return null;
 
-        return false;
+        List<Vector2Int> path =
+            new List<Vector2Int>();
+
+        Vector2Int node = end;
+
+        while (node != start)
+        {
+            path.Add(node);
+            node = parent[node.x, node.y];
+        }
+
+        path.Add(start);
+
+        path.Reverse();
+
+        return path;
     }
 
-    IEnumerator MoveAlongPath()
+    IEnumerator MoveToCell(
+        Vector2Int targetCell)
     {
-        foreach (Vector2Int cell in path)
-        {
-            Vector3 targetPos = GridToWorld(cell);
+        Vector3 targetPos =
+            GridToWorld(targetCell);
 
-            while (Vector3.Distance(transform.position, targetPos) > 0.01f)
-            {
-                transform.position = Vector3.MoveTowards(
+        while (
+            Vector3.Distance(
+                transform.position,
+                targetPos)
+            > 0.01f)
+        {
+            transform.position =
+                Vector3.MoveTowards(
                     transform.position,
                     targetPos,
                     moveSpeed * Time.deltaTime
                 );
 
-                yield return null;
-            }
+            yield return null;
         }
+
+        transform.position =
+            targetPos;
     }
 
-    Vector2Int WorldToGrid(Vector3 pos)
+    Vector2Int WorldToGrid(
+        Vector3 pos)
     {
-        int x = Mathf.RoundToInt((pos.x - mapMinX) / cellSize);
-        int y = Mathf.RoundToInt((pos.y - mapMinY) / cellSize);
+        int x =
+            Mathf.RoundToInt(
+                (pos.x - mapMinX)
+                / cellSize);
+
+        int y =
+            Mathf.RoundToInt(
+                (pos.y - mapMinY)
+                / cellSize);
 
         return new Vector2Int(x, y);
     }
 
-    Vector3 GridToWorld(Vector2Int grid)
+    Vector3 GridToWorld(
+        Vector2Int grid)
     {
-        float wx = mapMinX + grid.x * cellSize;
-        float wy = mapMinY + grid.y * cellSize;
+        float wx =
+            mapMinX +
+            grid.x * cellSize;
 
-        return new Vector3(wx, wy, 0);
+        float wy =
+            mapMinY +
+            grid.y * cellSize;
+
+        return new Vector3(
+            wx,
+            wy,
+            -1
+        );
     }
 }
