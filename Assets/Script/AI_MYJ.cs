@@ -9,6 +9,7 @@ public class AI_MYJ : MonoBehaviour
     public Transform endPoint;
     public float moveSpeed = 2f;
     public float cellSize = 0.5f;
+    public int movePerSearch = 5;
 
     private float mapMinX = -8.0f;
     private float mapMinY = -4.5f;
@@ -17,7 +18,7 @@ public class AI_MYJ : MonoBehaviour
 
     void Start()
     {
-        Debug.Log("AI_Dijkstra Start");
+        Debug.Log("AI_MYJ Start");
 
         if (startPoint == null || endPoint == null)
         {
@@ -26,17 +27,41 @@ public class AI_MYJ : MonoBehaviour
         }
 
         transform.position = startPoint.position;
+        StartCoroutine(AILoop());
+    }
 
-        Vector2Int start = WorldToGrid(startPoint.position);
+    IEnumerator AILoop()
+    {
         Vector2Int end = WorldToGrid(endPoint.position);
 
-        bool success = Dijkstra(start, end);
+        while (true)
+        {
+            Vector2Int current = WorldToGrid(transform.position);
 
-        Debug.Log("Dijkstra 결과: " + success);
-        Debug.Log("Path Count: " + path.Count);
+            if (current == end)
+            {
+                Debug.Log("AI 도착!");
+                yield break;
+            }
 
-        if (success)
-            StartCoroutine(MoveAlongPath());
+            bool success = Dijkstra(current, end);
+
+            if (!success)
+            {
+                Debug.Log("길 없음");
+                yield return new WaitForSeconds(0.2f);
+                continue;
+            }
+
+            int moveCount = Mathf.Min(movePerSearch, path.Count - 1);
+
+            for (int i = 1; i <= moveCount; i++)
+            {
+                yield return MoveToCell(path[i]);
+            }
+
+            yield return null;
+        }
     }
 
     bool Dijkstra(Vector2Int start, Vector2Int end)
@@ -44,12 +69,9 @@ public class AI_MYJ : MonoBehaviour
         int cols = mazeData.cols;
         int rows = mazeData.rows;
 
-        // 각 노드까지의 최단 거리
         int[,] dist = new int[cols, rows];
-        // 경로 역추적용 부모 노드
         Vector2Int[,] parent = new Vector2Int[cols, rows];
 
-        // 초기화
         for (int x = 0; x < cols; x++)
             for (int y = 0; y < rows; y++)
             {
@@ -59,8 +81,6 @@ public class AI_MYJ : MonoBehaviour
 
         dist[start.x, start.y] = 0;
 
-        // (거리, 좌표) 형태의 우선순위 큐 역할을 하는 SortedSet
-        // Unity에 PriorityQueue가 없으므로 List + 정렬로 대체
         List<(int cost, Vector2Int node)> openList = new List<(int, Vector2Int)>();
         openList.Add((0, start));
 
@@ -69,39 +89,32 @@ public class AI_MYJ : MonoBehaviour
 
         while (openList.Count > 0)
         {
-            // 비용이 가장 작은 노드 꺼내기
             openList.Sort((a, b) => a.cost.CompareTo(b.cost));
             var (curCost, cur) = openList[0];
             openList.RemoveAt(0);
 
-            // 이미 더 짧은 경로로 처리된 노드면 스킵
             if (curCost > dist[cur.x, cur.y])
                 continue;
 
-            // 도착점 도달
             if (cur == end)
             {
                 ReconstructPath(parent, start, end);
                 return true;
             }
 
-            // 인접 노드 탐색
             for (int i = 0; i < 4; i++)
             {
                 int nx = cur.x + dx[i];
                 int ny = cur.y + dy[i];
 
-                // 범위 체크
                 if (nx < 0 || ny < 0 || nx >= cols || ny >= rows)
                     continue;
 
                 int idx = nx + ny * cols;
 
-                // 벽이면 스킵
                 if (mazeData.tileTypes[idx] == 0)
                     continue;
 
-                // 이동 비용: 모든 타일을 동일하게 1로 처리
                 int newCost = dist[cur.x, cur.y] + 1;
 
                 if (newCost < dist[nx, ny])
@@ -113,11 +126,9 @@ public class AI_MYJ : MonoBehaviour
             }
         }
 
-        // 경로 없음
         return false;
     }
 
-    // parent 배열을 역추적해서 path 복원
     void ReconstructPath(Vector2Int[,] parent, Vector2Int start, Vector2Int end)
     {
         path.Clear();
@@ -130,25 +141,24 @@ public class AI_MYJ : MonoBehaviour
         }
 
         path.Add(start);
-        path.Reverse(); // 시작 → 끝 순서로 뒤집기
+        path.Reverse();
     }
 
-    IEnumerator MoveAlongPath()
+    IEnumerator MoveToCell(Vector2Int targetCell)
     {
-        foreach (Vector2Int cell in path)
-        {
-            Vector3 targetPos = GridToWorld(cell);
+        Vector3 targetPos = GridToWorld(targetCell);
 
-            while (Vector3.Distance(transform.position, targetPos) > 0.01f)
-            {
-                transform.position = Vector3.MoveTowards(
-                    transform.position,
-                    targetPos,
-                    moveSpeed * Time.deltaTime
-                );
-                yield return null;
-            }
+        while (Vector3.Distance(transform.position, targetPos) > 0.01f)
+        {
+            transform.position = Vector3.MoveTowards(
+                transform.position,
+                targetPos,
+                moveSpeed * Time.deltaTime
+            );
+            yield return null;
         }
+
+        transform.position = targetPos;
     }
 
     Vector2Int WorldToGrid(Vector3 pos)
@@ -162,6 +172,6 @@ public class AI_MYJ : MonoBehaviour
     {
         float wx = mapMinX + grid.x * cellSize;
         float wy = mapMinY + grid.y * cellSize;
-        return new Vector3(wx, wy, 0);
+        return new Vector3(wx, wy, -1);
     }
 }
