@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -5,42 +6,37 @@ public class AStarAI : MonoBehaviour
 {
     private const int INF = 1000000000;
 
+    [SerializeField] private int visionRange = 3;
+    [SerializeField] private float stepDelay = 0.2f;
+
     private class Node
     {
-        public int x;
-        public int y;
-        public int g;
-        public int h;
-
+        public int x, y, g, h;
         public int F => g + h;
 
         public Node(int x, int y, int g, int h)
         {
-            this.x = x;
-            this.y = y;
-            this.g = g;
-            this.h = h;
+            this.x = x; this.y = y;
+            this.g = g; this.h = h;
         }
     }
 
     private struct Parent
     {
-        public int px;
-        public int py;
-
-        public Parent(int px, int py)
-        {
-            this.px = px;
-            this.py = py;
-        }
+        public int px, py;
+        public Parent(int px, int py) { this.px = px; this.py = py; }
     }
 
     private int[] dx = { -1, 1, 0, 0 };
     private int[] dy = { 0, 0, -1, 1 };
 
+    private int[,] maze;
+    private Vector2Int current;
+    private Vector2Int goal;
+
     void Start()
     {
-        int[,] maze =
+        maze = new int[,]
         {
             {0, 0, 0, 1, 0},
             {1, 1, 0, 1, 0},
@@ -49,54 +45,46 @@ public class AStarAI : MonoBehaviour
             {0, 0, 0, 1, 0}
         };
 
-        Vector2Int start = new Vector2Int(0, 0);
-        Vector2Int goal = new Vector2Int(4, 4);
+        current = new Vector2Int(0, 0);
+        goal = new Vector2Int(4, 4);
 
-        List<Vector2Int> path = AStar(maze, start, goal);
-
-        if (path.Count == 0)
-        {
-            Debug.Log("경로를 찾을 수 없습니다.");
-        }
-        else
-        {
-            string result = "찾은 경로: ";
-            foreach (Vector2Int p in path)
-            {
-                result += $"({p.x}, {p.y}) ";
-            }
-            Debug.Log(result);
-        }
+        StartCoroutine(RunLocalAStar());
     }
 
-    int Heuristic(int x1, int y1, int x2, int y2)
+    IEnumerator RunLocalAStar()
     {
-        return Mathf.Abs(x1 - x2) + Mathf.Abs(y1 - y2); // 맨해튼 거리
-    }
+        Debug.Log($"출발: ({current.x}, {current.y}) → 목표: ({goal.x}, {goal.y})");
 
-    Node GetLowestFNode(List<Node> openList)
-    {
-        Node bestNode = openList[0];
-
-        for (int i = 1; i < openList.Count; i++)
+        while (current != goal)
         {
-            if (openList[i].F < bestNode.F)
+            List<Vector2Int> localPath = LocalAStar(maze, current, goal, visionRange);
+
+            if (localPath == null || localPath.Count < 2)
             {
-                bestNode = openList[i];
+                Debug.Log("범위 내에서 다음 경로를 찾을 수 없습니다. 이동을 중단합니다.");
+                yield break;
             }
-            else if (openList[i].F == bestNode.F && openList[i].h < bestNode.h)
-            {
-                bestNode = openList[i];
-            }
+
+            Vector2Int next = localPath[1];
+            Debug.Log($"({current.x},{current.y}) → ({next.x},{next.y})  [로컬 경로 길이: {localPath.Count}]");
+
+            current = next;
+
+            yield return new WaitForSeconds(stepDelay);
         }
 
-        return bestNode;
+        Debug.Log($"목표 도달! 최종 위치: ({current.x}, {current.y})");
     }
 
-    public List<Vector2Int> AStar(int[,] maze, Vector2Int start, Vector2Int goal)
+    public List<Vector2Int> LocalAStar(int[,] maze, Vector2Int start, Vector2Int goalPos, int range)
     {
         int n = maze.GetLength(0);
         int m = maze.GetLength(1);
+
+        int sx = start.x, sy = start.y;
+        int gx = goalPos.x, gy = goalPos.y;
+
+        bool goalInRange = (Mathf.Abs(gx - sx) + Mathf.Abs(gy - sy)) <= range;
 
         List<Node> openList = new List<Node>();
         bool[,] closed = new bool[n, m];
@@ -104,81 +92,102 @@ public class AStarAI : MonoBehaviour
         Parent[,] parent = new Parent[n, m];
 
         for (int i = 0; i < n; i++)
-        {
             for (int j = 0; j < m; j++)
             {
                 gCost[i, j] = INF;
                 parent[i, j] = new Parent(-1, -1);
             }
-        }
-
-        int sx = start.x;
-        int sy = start.y;
-        int gx = goal.x;
-        int gy = goal.y;
 
         gCost[sx, sy] = 0;
         openList.Add(new Node(sx, sy, 0, Heuristic(sx, sy, gx, gy)));
 
+        Node bestEdgeNode = null;
+
         while (openList.Count > 0)
         {
-            Node current = GetLowestFNode(openList);
-            openList.Remove(current);
+            Node cur = GetLowestFNode(openList);
+            openList.Remove(cur);
 
-            int x = current.x;
-            int y = current.y;
+            int x = cur.x, y = cur.y;
 
-            if (closed[x, y])
-                continue;
-
+            if (closed[x, y]) continue;
             closed[x, y] = true;
 
             if (x == gx && y == gy)
-            {
-                List<Vector2Int> path = new List<Vector2Int>();
-                int cx = gx;
-                int cy = gy;
-
-                while (!(cx == sx && cy == sy))
-                {
-                    path.Add(new Vector2Int(cx, cy));
-                    Parent p = parent[cx, cy];
-                    cx = p.px;
-                    cy = p.py;
-                }
-
-                path.Add(new Vector2Int(sx, sy));
-                path.Reverse();
-                return path;
-            }
+                return ReconstructPath(parent, sx, sy, gx, gy);
 
             for (int dir = 0; dir < 4; dir++)
             {
                 int nx = x + dx[dir];
                 int ny = y + dy[dir];
 
-                if (nx < 0 || ny < 0 || nx >= n || ny >= m)
-                    continue;
+                if (nx < 0 || ny < 0 || nx >= n || ny >= m) continue;
+                if (maze[nx, ny] == 1) continue;
+                if (closed[nx, ny]) continue;
 
-                if (maze[nx, ny] == 1)
-                    continue; // 벽
-
-                if (closed[nx, ny])
-                    continue;
+                int distFromStart = Mathf.Abs(nx - sx) + Mathf.Abs(ny - sy);
+                if (distFromStart > range) continue;
 
                 int newG = gCost[x, y] + 1;
+                if (newG >= gCost[nx, ny]) continue;
 
-                if (newG < gCost[nx, ny])
+                gCost[nx, ny] = newG;
+                parent[nx, ny] = new Parent(x, y);
+
+                int h = Heuristic(nx, ny, gx, gy);
+                Node neighbor = new Node(nx, ny, newG, h);
+                openList.Add(neighbor);
+
+                if (!goalInRange)
                 {
-                    gCost[nx, ny] = newG;
-                    parent[nx, ny] = new Parent(x, y);
-
-                    int h = Heuristic(nx, ny, gx, gy);
-                    openList.Add(new Node(nx, ny, newG, h));
+                    if (bestEdgeNode == null || h < bestEdgeNode.h ||
+                        (h == bestEdgeNode.h && newG < bestEdgeNode.g))
+                    {
+                        bestEdgeNode = neighbor;
+                    }
                 }
             }
         }
 
-        return new List<Vector2Int>(); // 경로 없음
+        if (!goalInRange && bestEdgeNode != null)
+        {
+            return ReconstructPath(parent, sx, sy, bestEdgeNode.x, bestEdgeNode.y);
+        }
+
+        return null;
+    }
+
+    List<Vector2Int> ReconstructPath(Parent[,] parent, int sx, int sy, int tx, int ty)
+    {
+        List<Vector2Int> path = new List<Vector2Int>();
+        int cx = tx, cy = ty;
+
+        while (!(cx == sx && cy == sy))
+        {
+            path.Add(new Vector2Int(cx, cy));
+            Parent p = parent[cx, cy];
+            if (p.px == -1) return null;
+            cx = p.px;
+            cy = p.py;
+        }
+
+        path.Add(new Vector2Int(sx, sy));
+        path.Reverse();
+        return path;
+    }
+
+    int Heuristic(int x1, int y1, int x2, int y2)
+        => Mathf.Abs(x1 - x2) + Mathf.Abs(y1 - y2);
+
+    Node GetLowestFNode(List<Node> openList)
+    {
+        Node best = openList[0];
+        for (int i = 1; i < openList.Count; i++)
+        {
+            if (openList[i].F < best.F ||
+                (openList[i].F == best.F && openList[i].h < best.h))
+                best = openList[i];
+        }
+        return best;
     }
 }
