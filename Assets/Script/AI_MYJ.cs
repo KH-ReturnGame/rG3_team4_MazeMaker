@@ -10,7 +10,7 @@ public class AI_MYJ : MonoBehaviour
     public float moveSpeed = 2f;
     public float cellSize = 0.5f;
 
-    private float mapMinX = -9.0f;
+    private float mapMinX = -8.0f;
     private float mapMinY = -4.5f;
 
     private List<Vector2Int> path = new List<Vector2Int>();

@@ -9,7 +9,7 @@ public class AI_BMK : MonoBehaviour
     public float moveSpeed = 2f;
     public float cellSize = 0.5f;
 
-    private float mapMinX = -6.5f;
+    private float mapMinX = -8.0f;
     private float mapMinY = -4.5f;
 
     public int movePerSearch = 5;
