@@ -11,25 +11,57 @@ public class Object : MonoBehaviour
 
     void OnMouseDown()
     {
+        if (!TurnManager.Instance.CanPlayerAct())
+            return;
+
         originalSlot = transform.parent;
         originalPos = transform.position;
 
-        // 타일 데이터 복구
-        MazeData mazeData = FindFirstObjectByType<MazeLoader>().mazeData;
+        // 슬롯에서 분리
+        transform.SetParent(null);
+
+        // 드래그 오프셋 계산
+        Vector3 mouseWorldPos =
+            Camera.main.ScreenToWorldPoint(
+                Input.mousePosition);
+
+        mouseWorldPos.z = 0;
+
+        offset =
+            transform.position -
+            mouseWorldPos;
+
+        // 기존 위치를 빈칸으로 변경
+        MazeData mazeData =
+            FindFirstObjectByType<MazeLoader>().mazeData;
+
         float mapMinX = -8.0f;
         float mapMinY = -4.5f;
         float cellSize = 0.5f;
 
-        int gridX = Mathf.RoundToInt((originalPos.x - mapMinX) / cellSize);
-        int gridY = Mathf.RoundToInt((originalPos.y - mapMinY) / cellSize);
+        int gridX =
+            Mathf.RoundToInt(
+                (originalPos.x - mapMinX)
+                / cellSize);
 
-        if (gridX >= 0 && gridY >= 0 && gridX < mazeData.cols && gridY < mazeData.rows)
+        int gridY =
+            Mathf.RoundToInt(
+                (originalPos.y - mapMinY)
+                / cellSize);
+
+        if (gridX >= 0 &&
+            gridY >= 0 &&
+            gridX < mazeData.cols &&
+            gridY < mazeData.rows)
         {
-            int idx = gridX + gridY * mazeData.cols;
+            int idx =
+                gridX +
+                gridY * mazeData.cols;
+
             mazeData.tileTypes[idx] = 1;
         }
 
-        placed = false; // ← 이게 있어야 드래그 가능
+        placed = false;
     }
 
     void OnMouseDrag()
@@ -63,7 +95,9 @@ public class Object : MonoBehaviour
         transform.position = snappedPos;
         placed = true;
 
-        // ↓ 추가: mazeData tileTypes 갱신
+        TurnManager.Instance.UsePlayerAction();
+
+        // 추가: mazeData tileTypes 갱신
         MazeData mazeData = FindFirstObjectByType<MazeLoader>().mazeData;
         float mapMinX = -8.0f;
         float mapMinY = -4.5f;

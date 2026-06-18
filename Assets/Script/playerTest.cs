@@ -46,6 +46,9 @@ public class PlayerTest : MonoBehaviour
 
     void TryMove()
     {
+        if (!TurnManager.Instance.CanPlayerAct())
+            return;
+
         Vector2Int dir = Vector2Int.zero;
 
         if (Input.GetKey(KeyCode.W) ||
@@ -93,6 +96,8 @@ public class PlayerTest : MonoBehaviour
             GridToWorld(nextCell);
 
         isMoving = true;
+
+        TurnManager.Instance.UsePlayerAction();
     }
 
     void MoveToTarget()

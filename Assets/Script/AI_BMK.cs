@@ -32,7 +32,6 @@ public class AI_BMK : MonoBehaviour
         transform.position =
             GridToWorld(start);
 
-        StartCoroutine(AILoop());
     }
 
     IEnumerator AILoop()
@@ -217,5 +216,37 @@ public class AI_BMK : MonoBehaviour
             wy,
             -1
         );
+    }
+
+    public IEnumerator TakeTurn()
+    {
+        Vector2Int current =
+            WorldToGrid(transform.position);
+
+        if (current == goal)
+        {
+            Debug.Log("AI µµÂø!");
+            yield break;
+        }
+
+        List<Vector2Int> path =
+            FindPathBFS(current, goal);
+
+        if (path == null)
+        {
+            Debug.Log("±æ ¾øÀ½");
+            yield break;
+        }
+
+        int moveCount =
+            Mathf.Min(
+                3,
+                path.Count - 1
+            );
+
+        for (int i = 1; i <= moveCount; i++)
+        {
+            yield return MoveToCell(path[i]);
+        }
     }
 }
