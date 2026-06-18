@@ -34,21 +34,25 @@ public class AStarAI : MonoBehaviour
     private Vector2Int current;
     private Vector2Int goal;
 
+    private float mapMinX = 6.5f;
+    private float mapMinY = -4.5f;
+
+    public MazeData mazeData;
+
     void Start()
     {
-        maze = new int[,]
-        {
-            {0, 0, 0, 1, 0},
-            {1, 1, 0, 1, 0},
-            {0, 0, 0, 0, 0},
-            {0, 1, 1, 1, 0},
-            {0, 0, 0, 1, 0}
-        };
-
-        current = new Vector2Int(0, 0);
-        goal = new Vector2Int(4, 4);
+        current = new Vector2Int(mazeData.aiStartX, mazeData.aiStartY);
+        goal = new Vector2Int(mazeData.endX, mazeData.endY);
+        transform.position = GridToWorld(current);
 
         StartCoroutine(RunLocalAStar());
+
+        Vector3 GridToWorld(Vector2Int grid)
+        {
+            float wx = mapMinX + grid.x * 0.5f;
+            float wy = mapMinY + grid.y * 0.5f;
+            return new Vector3(wx, wy, -1);
+        }
     }
 
     IEnumerator RunLocalAStar()
@@ -57,7 +61,7 @@ public class AStarAI : MonoBehaviour
 
         while (current != goal)
         {
-            List<Vector2Int> localPath = LocalAStar(maze, current, goal, visionRange);
+            List<Vector2Int> localPath = LocalAStar(current, goal, visionRange);
 
             if (localPath == null || localPath.Count < 2)
             {
@@ -76,15 +80,15 @@ public class AStarAI : MonoBehaviour
         Debug.Log($"목표 도달! 최종 위치: ({current.x}, {current.y})");
     }
 
-    public List<Vector2Int> LocalAStar(int[,] maze, Vector2Int start, Vector2Int goalPos, int range)
+    public List<Vector2Int> LocalAStar(Vector2Int start, Vector2Int goalPos, int range)
     {
-        int n = maze.GetLength(0);
-        int m = maze.GetLength(1);
+        int n = mazeData.cols;
+        int m = mazeData.rows;
 
         int sx = start.x, sy = start.y;
         int gx = goalPos.x, gy = goalPos.y;
 
-        bool goalInRange = (Mathf.Abs(gx - sx) + Mathf.Abs(gy - sy)) <= range;
+        bool goalInRange = (System.Math.Abs(gx - sx) + System.Math.Abs(gy - sy)) <= range;
 
         List<Node> openList = new List<Node>();
         bool[,] closed = new bool[n, m];
@@ -122,10 +126,11 @@ public class AStarAI : MonoBehaviour
                 int ny = y + dy[dir];
 
                 if (nx < 0 || ny < 0 || nx >= n || ny >= m) continue;
-                if (maze[nx, ny] == 1) continue;
+                int idx = nx + ny * mazeData.cols;
+                if (mazeData.tileTypes[idx] == 0) continue;
                 if (closed[nx, ny]) continue;
 
-                int distFromStart = Mathf.Abs(nx - sx) + Mathf.Abs(ny - sy);
+                int distFromStart = System.Math.Abs(nx - sx) + System.Math.Abs(ny - sy);
                 if (distFromStart > range) continue;
 
                 int newG = gCost[x, y] + 1;
@@ -155,6 +160,8 @@ public class AStarAI : MonoBehaviour
         }
 
         return null;
+
+
     }
 
     List<Vector2Int> ReconstructPath(Parent[,] parent, int sx, int sy, int tx, int ty)
@@ -177,7 +184,7 @@ public class AStarAI : MonoBehaviour
     }
 
     int Heuristic(int x1, int y1, int x2, int y2)
-        => Mathf.Abs(x1 - x2) + Mathf.Abs(y1 - y2);
+        => System.Math.Abs(x1 - x2) + System.Math.Abs(y1 - y2);
 
     Node GetLowestFNode(List<Node> openList)
     {
@@ -190,4 +197,6 @@ public class AStarAI : MonoBehaviour
         }
         return best;
     }
+
+
 }
