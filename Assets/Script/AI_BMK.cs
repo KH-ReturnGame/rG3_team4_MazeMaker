@@ -18,6 +18,8 @@ public class AI_BMK : MonoBehaviour
 
     void Start()
     {
+        Debug.Log("AI MazeData = " + mazeData.GetInstanceID());
+
         goal = new Vector2Int(
             mazeData.endX,
             mazeData.endY
@@ -121,11 +123,13 @@ public class AI_BMK : MonoBehaviour
                 if (visited[nx, ny])
                     continue;
 
-                int idx =
-                    nx + ny * cols;
+                int idx = nx + ny * cols;
 
                 if (mazeData.tileTypes[idx] == 0)
+                {
+                    Debug.Log($"º® °¨Áö : ({nx}, {ny})");
                     continue;
+                }
 
                 visited[nx, ny] = true;
 
@@ -134,6 +138,7 @@ public class AI_BMK : MonoBehaviour
 
                 queue.Enqueue(
                     new Vector2Int(nx, ny));
+
             }
         }
 
@@ -156,6 +161,8 @@ public class AI_BMK : MonoBehaviour
         path.Reverse();
 
         return path;
+
+
     }
 
     IEnumerator MoveToCell(
@@ -249,4 +256,5 @@ public class AI_BMK : MonoBehaviour
             yield return MoveToCell(path[i]);
         }
     }
+
 }

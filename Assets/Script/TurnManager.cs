@@ -5,15 +5,11 @@ public class TurnManager : MonoBehaviour
 {
     public static TurnManager Instance;
 
-    public enum TurnState
-    {
-        PlayerTurn,
-        AITurn
-    }
-
+    public enum TurnState { PlayerTurn, AITurn }
     public TurnState currentTurn;
 
     public AI_BMK ai;
+    public MazeData mazeData; // ← 여기서 중앙 관리
 
     private bool playerActionUsed;
 
@@ -31,35 +27,26 @@ public class TurnManager : MonoBehaviour
     {
         currentTurn = TurnState.PlayerTurn;
         playerActionUsed = false;
-
         Debug.Log("플레이어 턴");
     }
 
     public void UsePlayerAction()
     {
-        if (playerActionUsed)
-            return;
-
+        if (playerActionUsed) return;
         playerActionUsed = true;
-
         StartCoroutine(StartAITurn());
     }
 
     IEnumerator StartAITurn()
     {
         currentTurn = TurnState.AITurn;
-
         Debug.Log("AI 턴");
-
         yield return ai.TakeTurn();
-
         StartPlayerTurn();
     }
 
     public bool CanPlayerAct()
     {
-        return currentTurn ==
-               TurnState.PlayerTurn &&
-               !playerActionUsed;
+        return currentTurn == TurnState.PlayerTurn && !playerActionUsed;
     }
 }

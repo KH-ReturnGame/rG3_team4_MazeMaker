@@ -1,4 +1,3 @@
-using UnityEditor.Overlays;
 using UnityEngine;
 
 public class Object : MonoBehaviour
@@ -7,7 +6,6 @@ public class Object : MonoBehaviour
     private bool placed = false;
     private Transform originalSlot;
     private Vector3 originalPos;
-    public Tile tiledata; //오브젝트랑 연결
 
     void OnMouseDown()
     {
@@ -17,47 +15,25 @@ public class Object : MonoBehaviour
         originalSlot = transform.parent;
         originalPos = transform.position;
 
-        // 슬롯에서 분리
         transform.SetParent(null);
 
-        // 드래그 오프셋 계산
-        Vector3 mouseWorldPos =
-            Camera.main.ScreenToWorldPoint(
-                Input.mousePosition);
-
+        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mouseWorldPos.z = 0;
-
-        offset =
-            transform.position -
-            mouseWorldPos;
+        offset = transform.position - mouseWorldPos;
 
         // 기존 위치를 빈칸으로 변경
-        MazeData mazeData =
-            FindFirstObjectByType<MazeLoader>().mazeData;
-
+        MazeData mazeData = TurnManager.Instance.mazeData;
         float mapMinX = -8.0f;
         float mapMinY = -4.5f;
         float cellSize = 0.5f;
 
-        int gridX =
-            Mathf.RoundToInt(
-                (originalPos.x - mapMinX)
-                / cellSize);
+        int gridX = Mathf.RoundToInt((originalPos.x - mapMinX) / cellSize);
+        int gridY = Mathf.RoundToInt((originalPos.y - mapMinY) / cellSize);
 
-        int gridY =
-            Mathf.RoundToInt(
-                (originalPos.y - mapMinY)
-                / cellSize);
-
-        if (gridX >= 0 &&
-            gridY >= 0 &&
-            gridX < mazeData.cols &&
-            gridY < mazeData.rows)
+        if (gridX >= 0 && gridY >= 0 &&
+            gridX < mazeData.cols && gridY < mazeData.rows)
         {
-            int idx =
-                gridX +
-                gridY * mazeData.cols;
-
+            int idx = gridX + gridY * mazeData.cols;
             mazeData.tileTypes[idx] = 1;
         }
 
@@ -67,7 +43,7 @@ public class Object : MonoBehaviour
     void OnMouseDrag()
     {
         if (placed) return;
-        
+
         Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mouseWorldPos.z = 0;
         transform.position = mouseWorldPos + offset;
@@ -79,7 +55,6 @@ public class Object : MonoBehaviour
 
         float snappedX = Mathf.Floor(transform.position.x * 2) / 2 + 0.5f;
         float snappedY = Mathf.Floor(transform.position.y * 2) / 2 + 0.5f;
-
         snappedX = Mathf.Clamp(snappedX, -9.0f, 4.5f);
         snappedY = Mathf.Clamp(snappedY, -4.5f, 4.5f);
 
@@ -95,10 +70,8 @@ public class Object : MonoBehaviour
         transform.position = snappedPos;
         placed = true;
 
-        TurnManager.Instance.UsePlayerAction();
-
-        // 추가: mazeData tileTypes 갱신
-        MazeData mazeData = FindFirstObjectByType<MazeLoader>().mazeData;
+        // mazeData tileTypes 갱신
+        MazeData mazeData = TurnManager.Instance.mazeData;
         float mapMinX = -8.0f;
         float mapMinY = -4.5f;
         float cellSize = 0.5f;
@@ -106,12 +79,16 @@ public class Object : MonoBehaviour
         int gridX = Mathf.RoundToInt((snappedX - mapMinX) / cellSize);
         int gridY = Mathf.RoundToInt((snappedY - mapMinY) / cellSize);
 
-        if (gridX >= 0 && gridY >= 0 && gridX < mazeData.cols && gridY < mazeData.rows)
+        if (gridX >= 0 && gridY >= 0 &&
+            gridX < mazeData.cols && gridY < mazeData.rows)
         {
             int idx = gridX + gridY * mazeData.cols;
-            mazeData.tileTypes[idx] = 0; // 벽으로 설정
+            mazeData.tileTypes[idx] = 0;
             Debug.Log($"블록 배치: 그리드({gridX},{gridY}) → 벽 처리");
+            Debug.Log("Object MazeData = " + mazeData.GetInstanceID());
         }
+
+        TurnManager.Instance.UsePlayerAction();
     }
 
     bool IsOccupied(Vector3 pos)

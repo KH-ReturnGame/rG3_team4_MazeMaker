@@ -623,6 +623,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TurnManager
   currentTurn: 0
   ai: {fileID: 1607887138}
+  mazeData: {fileID: 11400000, guid: ec5d0f2f525e9b94a815f84c5fed5e50, type: 2}
 --- !u!4 &1417392727
 Transform:
   m_ObjectHideFlags: 0
