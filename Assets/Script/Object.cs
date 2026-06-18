@@ -1,3 +1,4 @@
+using UnityEditor.Overlays;
 using UnityEngine;
 
 public class Object : MonoBehaviour
@@ -10,15 +11,25 @@ public class Object : MonoBehaviour
 
     void OnMouseDown()
     {
-        if (placed) return;
-
         originalSlot = transform.parent;
-        originalPos = transform.position; //원래 위치 저장
+        originalPos = transform.position;
 
-        transform.SetParent(null); // 부모 관계 해제
-        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        mouseWorldPos.z = 0;
-        offset = transform.position - mouseWorldPos;
+        // 타일 데이터 복구
+        MazeData mazeData = FindFirstObjectByType<MazeLoader>().mazeData;
+        float mapMinX = -8.0f;
+        float mapMinY = -4.5f;
+        float cellSize = 0.5f;
+
+        int gridX = Mathf.RoundToInt((originalPos.x - mapMinX) / cellSize);
+        int gridY = Mathf.RoundToInt((originalPos.y - mapMinY) / cellSize);
+
+        if (gridX >= 0 && gridY >= 0 && gridX < mazeData.cols && gridY < mazeData.rows)
+        {
+            int idx = gridX + gridY * mazeData.cols;
+            mazeData.tileTypes[idx] = 1;
+        }
+
+        placed = false; // ← 이게 있어야 드래그 가능
     }
 
     void OnMouseDrag()
@@ -34,17 +45,16 @@ public class Object : MonoBehaviour
     {
         if (placed) return;
 
-        // 현재 위치에서 가장 가까운 셀 중앙에 정렬(타일맵 이용 안함-수정 가능성 O)
-        float snappedX = Mathf.Floor(transform.position.x*2)/2 + 0.5f;
-        float snappedY = Mathf.Floor(transform.position.y*2)/2 + 0.5f;
-        // 맵 범위 제한 
+        float snappedX = Mathf.Floor(transform.position.x * 2) / 2 + 0.5f;
+        float snappedY = Mathf.Floor(transform.position.y * 2) / 2 + 0.5f;
+
         snappedX = Mathf.Clamp(snappedX, -9.0f, 4.5f);
         snappedY = Mathf.Clamp(snappedY, -4.5f, 4.5f);
+
         Vector3 snappedPos = new Vector3(snappedX, snappedY, 0);
 
         if (IsOccupied(snappedPos))
         {
-            // 배치 실패하면 원래 위치로
             transform.SetParent(originalSlot);
             transform.position = originalPos;
             return;
@@ -52,6 +62,22 @@ public class Object : MonoBehaviour
 
         transform.position = snappedPos;
         placed = true;
+
+        // ↓ 추가: mazeData tileTypes 갱신
+        MazeData mazeData = FindFirstObjectByType<MazeLoader>().mazeData;
+        float mapMinX = -8.0f;
+        float mapMinY = -4.5f;
+        float cellSize = 0.5f;
+
+        int gridX = Mathf.RoundToInt((snappedX - mapMinX) / cellSize);
+        int gridY = Mathf.RoundToInt((snappedY - mapMinY) / cellSize);
+
+        if (gridX >= 0 && gridY >= 0 && gridX < mazeData.cols && gridY < mazeData.rows)
+        {
+            int idx = gridX + gridY * mazeData.cols;
+            mazeData.tileTypes[idx] = 0; // 벽으로 설정
+            Debug.Log($"블록 배치: 그리드({gridX},{gridY}) → 벽 처리");
+        }
     }
 
     bool IsOccupied(Vector3 pos)

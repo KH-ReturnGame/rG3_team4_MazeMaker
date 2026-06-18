@@ -10,7 +10,7 @@ public class MazeLoader : MonoBehaviour
     public GameObject aiPrefab;
     public GameObject goalPrefab;
 
-    private float mapMinX = -6.5f;
+    private float mapMinX = -8.0f;
     private float mapMinY = -4.5f;
 
     private float cellSize = 0.5f;
