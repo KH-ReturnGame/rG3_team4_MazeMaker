@@ -88,6 +88,7 @@ public class Object : MonoBehaviour
             Debug.Log("Object MazeData = " + mazeData.GetInstanceID());
         }
 
+        CameraShaker.Instance.Shake();
         TurnManager.Instance.UsePlayerAction();
     }
 
