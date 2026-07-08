@@ -8,8 +8,10 @@ public class TurnManager : MonoBehaviour
     public enum TurnState { PlayerTurn, AITurn }
     public TurnState currentTurn;
 
-    public AI_BMK ai;
-    public MazeData mazeData; // ← 여기서 중앙 관리
+    public AI_BMK ai_BMK;
+    public AI_MYJ ai_MYJ;
+    public AStarAI ai_AStar;
+    public MazeData mazeData;
 
     private bool playerActionUsed;
 
@@ -41,7 +43,16 @@ public class TurnManager : MonoBehaviour
     {
         currentTurn = TurnState.AITurn;
         Debug.Log("AI 턴");
-        yield return ai.TakeTurn();
+
+        // 세 AI 동시에 턴 진행
+        Coroutine c1 = StartCoroutine(ai_BMK.TakeTurn());
+        Coroutine c2 = StartCoroutine(ai_MYJ.TakeTurn());
+        Coroutine c3 = StartCoroutine(ai_AStar.TakeTurn());
+
+        yield return c1;
+        yield return c2;
+        yield return c3;
+
         StartPlayerTurn();
     }
 

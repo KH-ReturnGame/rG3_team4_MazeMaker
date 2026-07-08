@@ -7,7 +7,9 @@ public class AStarAI : MonoBehaviour
     private const int INF = 1000000000;
 
     [SerializeField] private int visionRange = 3;
-    [SerializeField] private float stepDelay = 0.2f;
+    public float moveSpeed = 2f;
+    public float cellSize = 0.5f;
+    public int movePerSearch = 5;
 
     private class Node
     {
@@ -30,54 +32,47 @@ public class AStarAI : MonoBehaviour
     private int[] dx = { -1, 1, 0, 0 };
     private int[] dy = { 0, 0, -1, 1 };
 
-    private int[,] maze;
-    private Vector2Int current;
     private Vector2Int goal;
 
-    private float mapMinX = 6.5f;
+    private float mapMinX = -8.0f;
     private float mapMinY = -4.5f;
 
     public MazeData mazeData;
 
     void Start()
     {
-        current = new Vector2Int(mazeData.aiStartX, mazeData.aiStartY);
         goal = new Vector2Int(mazeData.endX, mazeData.endY);
-        transform.position = GridToWorld(current);
 
-        StartCoroutine(RunLocalAStar());
+        Vector2Int start = new Vector2Int(mazeData.aiStartX, mazeData.aiStartY);
+        transform.position = GridToWorld(start);
 
-        Vector3 GridToWorld(Vector2Int grid)
-        {
-            float wx = mapMinX + grid.x * 0.5f;
-            float wy = mapMinY + grid.y * 0.5f;
-            return new Vector3(wx, wy, -1);
-        }
+        Debug.Log($"AStarAI 출발: ({start.x}, {start.y}) → 목표: ({goal.x}, {goal.y})");
     }
 
-    IEnumerator RunLocalAStar()
+    public IEnumerator TakeTurn()
     {
-        Debug.Log($"출발: ({current.x}, {current.y}) → 목표: ({goal.x}, {goal.y})");
+        Vector2Int current = WorldToGrid(transform.position);
 
-        while (current != goal)
+        if (current == goal)
         {
-            List<Vector2Int> localPath = LocalAStar(current, goal, visionRange);
-
-            if (localPath == null || localPath.Count < 2)
-            {
-                Debug.Log("범위 내에서 다음 경로를 찾을 수 없습니다. 이동을 중단합니다.");
-                yield break;
-            }
-
-            Vector2Int next = localPath[1];
-            Debug.Log($"({current.x},{current.y}) → ({next.x},{next.y})  [로컬 경로 길이: {localPath.Count}]");
-
-            current = next;
-
-            yield return new WaitForSeconds(stepDelay);
+            Debug.Log("AStarAI 도착!");
+            yield break;
         }
 
-        Debug.Log($"목표 도달! 최종 위치: ({current.x}, {current.y})");
+        List<Vector2Int> localPath = LocalAStar(current, goal, visionRange);
+
+        if (localPath == null || localPath.Count < 2)
+        {
+            Debug.Log("AStarAI 길 없음");
+            yield break;
+        }
+
+        int moveCount = Mathf.Min(movePerSearch, localPath.Count - 1);
+
+        for (int i = 1; i <= moveCount; i++)
+        {
+            yield return MoveToCell(localPath[i]);
+        }
     }
 
     public List<Vector2Int> LocalAStar(Vector2Int start, Vector2Int goalPos, int range)
@@ -126,6 +121,7 @@ public class AStarAI : MonoBehaviour
                 int ny = y + dy[dir];
 
                 if (nx < 0 || ny < 0 || nx >= n || ny >= m) continue;
+
                 int idx = nx + ny * mazeData.cols;
                 if (mazeData.tileTypes[idx] == 0) continue;
                 if (closed[nx, ny]) continue;
@@ -147,21 +143,32 @@ public class AStarAI : MonoBehaviour
                 {
                     if (bestEdgeNode == null || h < bestEdgeNode.h ||
                         (h == bestEdgeNode.h && newG < bestEdgeNode.g))
-                    {
                         bestEdgeNode = neighbor;
-                    }
                 }
             }
         }
 
         if (!goalInRange && bestEdgeNode != null)
-        {
             return ReconstructPath(parent, sx, sy, bestEdgeNode.x, bestEdgeNode.y);
-        }
 
         return null;
+    }
 
+    IEnumerator MoveToCell(Vector2Int targetCell)
+    {
+        Vector3 targetPos = GridToWorld(targetCell);
 
+        while (Vector3.Distance(transform.position, targetPos) > 0.01f)
+        {
+            transform.position = Vector3.MoveTowards(
+                transform.position,
+                targetPos,
+                moveSpeed * Time.deltaTime
+            );
+            yield return null;
+        }
+
+        transform.position = targetPos;
     }
 
     List<Vector2Int> ReconstructPath(Parent[,] parent, int sx, int sy, int tx, int ty)
@@ -198,5 +205,17 @@ public class AStarAI : MonoBehaviour
         return best;
     }
 
+    Vector2Int WorldToGrid(Vector3 pos)
+    {
+        int x = Mathf.RoundToInt((pos.x - mapMinX) / cellSize);
+        int y = Mathf.RoundToInt((pos.y - mapMinY) / cellSize);
+        return new Vector2Int(x, y);
+    }
 
+    Vector3 GridToWorld(Vector2Int grid)
+    {
+        float wx = mapMinX + grid.x * cellSize;
+        float wy = mapMinY + grid.y * cellSize;
+        return new Vector3(wx, wy, -1);
+    }
 }

@@ -5,62 +5,53 @@ using System.Collections.Generic;
 public class AI_MYJ : MonoBehaviour
 {
     public MazeData mazeData;
-    public Transform startPoint;
-    public Transform endPoint;
     public float moveSpeed = 2f;
     public float cellSize = 0.5f;
-    public int movePerSearch = 5;
+    public int movePerSearch = 5; // ← 추가
 
     private float mapMinX = -8.0f;
     private float mapMinY = -4.5f;
 
+    private Vector2Int goal;
     private List<Vector2Int> path = new List<Vector2Int>();
 
     void Start()
     {
         Debug.Log("AI_MYJ Start");
 
-        if (startPoint == null || endPoint == null)
-        {
-            Debug.Log("StartPoint 또는 EndPoint 없음");
-            return;
-        }
+        goal = new Vector2Int(mazeData.endX, mazeData.endY);
 
-        transform.position = startPoint.position;
-        StartCoroutine(AILoop());
+        Vector2Int start = new Vector2Int(mazeData.aiStartX, mazeData.aiStartY);
+        transform.position = GridToWorld(start);
     }
 
-    IEnumerator AILoop()
+    public IEnumerator TakeTurn()
     {
-        Vector2Int end = WorldToGrid(endPoint.position);
+        Vector2Int current = WorldToGrid(transform.position);
+        Debug.Log($"AI_MYJ current: {current}, goal: {goal}");
 
-        while (true)
+        if (current == goal)
         {
-            Vector2Int current = WorldToGrid(transform.position);
+            Debug.Log("AI_MYJ 도착!");
+            yield break;
+        }
 
-            if (current == end)
-            {
-                Debug.Log("AI 도착!");
-                yield break;
-            }
+        bool success = Dijkstra(current, goal);
+        Debug.Log($"AI_MYJ Dijkstra 결과: {success}, path.Count: {path.Count}");
 
-            bool success = Dijkstra(current, end);
+        if (!success)
+        {
+            Debug.Log("AI_MYJ 길 없음");
+            yield break;
+        }
 
-            if (!success)
-            {
-                Debug.Log("길 없음");
-                yield return new WaitForSeconds(0.2f);
-                continue;
-            }
+        int moveCount = Mathf.Min(3, path.Count - 1);
+        Debug.Log($"AI_MYJ moveCount: {moveCount}");
 
-            int moveCount = Mathf.Min(movePerSearch, path.Count - 1);
-
-            for (int i = 1; i <= moveCount; i++)
-            {
-                yield return MoveToCell(path[i]);
-            }
-
-            yield return null;
+        for (int i = 1; i <= moveCount; i++)
+        {
+            Debug.Log($"AI_MYJ 이동 → {path[i]}");
+            yield return MoveToCell(path[i]);
         }
     }
 
