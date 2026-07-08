@@ -5,7 +5,6 @@ public class MazeData : ScriptableObject
 {
     public int cols;
     public int rows;
-
     public bool[] isWall;
     public int[] tileTypes;
 
@@ -20,4 +19,7 @@ public class MazeData : ScriptableObject
     // AI 시작점
     public int aiStartX;
     public int aiStartY;
+
+    // 선택된 AI (0=AI_BMK, 1=AI_MYJ, 2=AStarAI)
+    public int selectedAI;
 }

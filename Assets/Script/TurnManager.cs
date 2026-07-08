@@ -15,6 +15,9 @@ public class TurnManager : MonoBehaviour
 
     private bool playerActionUsed;
 
+    // 실제 선택된 AI 코루틴만 실행하기 위한 참조
+    private MonoBehaviour selectedAI;
+
     void Awake()
     {
         Instance = this;
@@ -22,7 +25,36 @@ public class TurnManager : MonoBehaviour
 
     void Start()
     {
+        ActivateSelectedAI();
         StartPlayerTurn();
+    }
+
+    void ActivateSelectedAI()
+    {
+        // 일단 전부 비활성화
+        ai_BMK.gameObject.SetActive(false);
+        ai_MYJ.gameObject.SetActive(false);
+        ai_AStar.gameObject.SetActive(false);
+
+        // 선택된 AI만 활성화
+        switch (mazeData.selectedAI)
+        {
+            case 0:
+                ai_BMK.gameObject.SetActive(true);
+                selectedAI = ai_BMK;
+                Debug.Log("AI_BMK 활성화");
+                break;
+            case 1:
+                ai_MYJ.gameObject.SetActive(true);
+                selectedAI = ai_MYJ;
+                Debug.Log("AI_MYJ 활성화");
+                break;
+            case 2:
+                ai_AStar.gameObject.SetActive(true);
+                selectedAI = ai_AStar;
+                Debug.Log("AStarAI 활성화");
+                break;
+        }
     }
 
     public void StartPlayerTurn()
@@ -44,14 +76,13 @@ public class TurnManager : MonoBehaviour
         currentTurn = TurnState.AITurn;
         Debug.Log("AI 턴");
 
-        // 세 AI 동시에 턴 진행
-        Coroutine c1 = StartCoroutine(ai_BMK.TakeTurn());
-        Coroutine c2 = StartCoroutine(ai_MYJ.TakeTurn());
-        Coroutine c3 = StartCoroutine(ai_AStar.TakeTurn());
-
-        yield return c1;
-        yield return c2;
-        yield return c3;
+        // 선택된 AI만 TakeTurn 실행
+        if (mazeData.selectedAI == 0)
+            yield return StartCoroutine(ai_BMK.TakeTurn());
+        else if (mazeData.selectedAI == 1)
+            yield return StartCoroutine(ai_MYJ.TakeTurn());
+        else if (mazeData.selectedAI == 2)
+            yield return StartCoroutine(ai_AStar.TakeTurn());
 
         StartPlayerTurn();
     }
