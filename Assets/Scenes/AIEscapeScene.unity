@@ -574,8 +574,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 596cf28039d5d5d4eabf660e9698da63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraShaker
-  duration: 0.3
-  magnitude: 0.15
+  duration: 0.2
+  magnitude: 0.5
   curve:
     serializedVersion: 2
     m_Curve:

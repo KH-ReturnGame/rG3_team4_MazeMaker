@@ -7,6 +7,12 @@ public class Object : MonoBehaviour
     private Transform originalSlot;
     private Vector3 originalPos;
 
+    // 중앙 3x3 배치 금지 영역
+    private const float blockMinX = -2.0f;
+    private const float blockMaxX = -1.0f;
+    private const float blockMinY = -0.5f;
+    private const float blockMaxY = 0.5f;
+
     void OnMouseDown()
     {
         if (!TurnManager.Instance.CanPlayerAct())
@@ -14,14 +20,12 @@ public class Object : MonoBehaviour
 
         originalSlot = transform.parent;
         originalPos = transform.position;
-
         transform.SetParent(null);
 
         Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mouseWorldPos.z = 0;
         offset = transform.position - mouseWorldPos;
 
-        // 기존 위치를 빈칸으로 변경
         MazeData mazeData = TurnManager.Instance.mazeData;
         float mapMinX = -8.0f;
         float mapMinY = -4.5f;
@@ -60,6 +64,15 @@ public class Object : MonoBehaviour
 
         Vector3 snappedPos = new Vector3(snappedX, snappedY, 0);
 
+        // 중앙 3x3 배치 금지 체크
+        if (IsInBlockedZone(snappedX, snappedY))
+        {
+            transform.SetParent(originalSlot);
+            transform.position = originalPos;
+            Debug.Log("중앙 구역엔 배치 불가!");
+            return;
+        }
+
         if (IsOccupied(snappedPos))
         {
             transform.SetParent(originalSlot);
@@ -70,7 +83,6 @@ public class Object : MonoBehaviour
         transform.position = snappedPos;
         placed = true;
 
-        // mazeData tileTypes 갱신
         MazeData mazeData = TurnManager.Instance.mazeData;
         float mapMinX = -8.0f;
         float mapMinY = -4.5f;
@@ -90,6 +102,12 @@ public class Object : MonoBehaviour
 
         CameraShaker.Instance.Shake();
         TurnManager.Instance.UsePlayerAction();
+    }
+
+    bool IsInBlockedZone(float x, float y)
+    {
+        return x >= blockMinX && x <= blockMaxX &&
+               y >= blockMinY && y <= blockMaxY;
     }
 
     bool IsOccupied(Vector3 pos)
