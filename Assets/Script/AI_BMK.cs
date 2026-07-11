@@ -255,6 +255,13 @@ public class AI_BMK : MonoBehaviour
         {
             yield return MoveToCell(path[i]);
         }
+
+        // AI_BMK, AI_MYJ, AStarAI 각각 TakeTurn() 끝에 추가
+        if (WorldToGrid(transform.position) == goal)
+        {
+            if (GameEndManager.Instance != null)
+                GameEndManager.Instance.OnAIReached();
+        }
     }
 
 }

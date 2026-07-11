@@ -53,6 +53,13 @@ public class AI_MYJ : MonoBehaviour
             Debug.Log($"AI_MYJ 이동 → {path[i]}");
             yield return MoveToCell(path[i]);
         }
+
+        // AI_BMK, AI_MYJ, AStarAI 각각 TakeTurn() 끝에 추가
+        if (WorldToGrid(transform.position) == goal)
+        {
+            if (GameEndManager.Instance != null)
+                GameEndManager.Instance.OnAIReached();
+        }
     }
 
     bool Dijkstra(Vector2Int start, Vector2Int end)

@@ -73,6 +73,13 @@ public class AStarAI : MonoBehaviour
         {
             yield return MoveToCell(localPath[i]);
         }
+
+        // AI_BMK, AI_MYJ, AStarAI 각각 TakeTurn() 끝에 추가
+        if (WorldToGrid(transform.position) == goal)
+        {
+            if (GameEndManager.Instance != null)
+                GameEndManager.Instance.OnAIReached();
+        }
     }
 
     public List<Vector2Int> LocalAStar(Vector2Int start, Vector2Int goalPos, int range)
