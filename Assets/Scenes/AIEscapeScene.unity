@@ -129,6 +129,7 @@ GameObject:
   m_Component:
   - component: {fileID: 224097511}
   - component: {fileID: 224097510}
+  - component: {fileID: 224097512}
   m_Layer: 0
   m_Name: Proto_Maze
   m_TagString: Untagged
@@ -204,13 +205,31 @@ Transform:
   m_GameObject: {fileID: 224097509}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.5, y: 0, z: 0}
-  m_LocalScale: {x: 13.75, y: 9.47, z: 1}
+  m_LocalPosition: {x: -1.4992, y: -0.000098, z: 0}
+  m_LocalScale: {x: 13.50071, y: 9.498872, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1967183037}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &224097512
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 224097509}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a8ed8443d5882744b4e821af3ca0207, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Position
+  columns: 27
+  rows: 19
+  boardWidth: 13.50071
+  boardHeight: 9.498872
+  pointRadius: 0.05
+  pointColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!1 &399642060
 GameObject:
   m_ObjectHideFlags: 0
@@ -312,69 +331,12 @@ Transform:
   m_GameObject: {fileID: 399642060}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.3297, y: 1.23291, z: 0}
+  m_LocalPosition: {x: -8, y: -4.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &496140865
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 2963598434542922479, guid: a3ce45fcfeabaef439a5b29dc0328734, type: 3}
-      propertyPath: m_Name
-      value: Block
-      objectReference: {fileID: 0}
-    - target: {fileID: 6353702912134512601, guid: a3ce45fcfeabaef439a5b29dc0328734, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 9.352314
-      objectReference: {fileID: 0}
-    - target: {fileID: 6353702912134512601, guid: a3ce45fcfeabaef439a5b29dc0328734, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -4.564337
-      objectReference: {fileID: 0}
-    - target: {fileID: 6353702912134512601, guid: a3ce45fcfeabaef439a5b29dc0328734, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6353702912134512601, guid: a3ce45fcfeabaef439a5b29dc0328734, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6353702912134512601, guid: a3ce45fcfeabaef439a5b29dc0328734, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6353702912134512601, guid: a3ce45fcfeabaef439a5b29dc0328734, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6353702912134512601, guid: a3ce45fcfeabaef439a5b29dc0328734, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6353702912134512601, guid: a3ce45fcfeabaef439a5b29dc0328734, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6353702912134512601, guid: a3ce45fcfeabaef439a5b29dc0328734, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6353702912134512601, guid: a3ce45fcfeabaef439a5b29dc0328734, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: a3ce45fcfeabaef439a5b29dc0328734, type: 3}
 --- !u!1 &929470180
 GameObject:
   m_ObjectHideFlags: 0
@@ -405,8 +367,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MazeLoader
   mazeData: {fileID: 11400000, guid: ec5d0f2f525e9b94a815f84c5fed5e50, type: 2}
-  blockPrefab: {fileID: 2963598434542922479, guid: a3ce45fcfeabaef439a5b29dc0328734, type: 3}
-  playerPrefab: {fileID: 399642060}
+  blockPrefab: {fileID: 2611905803168160261, guid: bc54e9a322f18214790d106e5f64545a, type: 3}
+  playerPrefab: {fileID: 0}
   aiPrefab: {fileID: 1607887135}
   goalPrefab: {fileID: 1083340820}
 --- !u!4 &929470182
@@ -943,7 +905,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 162844c49508e0f4faffd31d376e3f1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  player: {fileID: 399642061}
+  player: {fileID: 0}
   ai: {fileID: 1607887138}
 --- !u!4 &1614060609
 Transform:
@@ -1023,7 +985,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Board
   slots:
   - {fileID: 1798311742}
-  tilePrefab: {fileID: 2963598434542922479, guid: a3ce45fcfeabaef439a5b29dc0328734, type: 3}
+  tilePrefab: {fileID: 2611905803168160261, guid: bc54e9a322f18214790d106e5f64545a, type: 3}
 --- !u!212 &1798311741
 SpriteRenderer:
   serializedVersion: 2
@@ -1312,6 +1274,5 @@ SceneRoots:
   - {fileID: 399642063}
   - {fileID: 1614060609}
   - {fileID: 1798311742}
-  - {fileID: 496140865}
   - {fileID: 1417392727}
   - {fileID: 1927927150}
