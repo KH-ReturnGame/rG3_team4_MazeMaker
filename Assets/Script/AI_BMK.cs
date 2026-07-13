@@ -245,15 +245,18 @@ public class AI_BMK : MonoBehaviour
             yield break;
         }
 
-        int moveCount =
-            Mathf.Min(
-                3,
-                path.Count - 1
-            );
+        int moveCount = Mathf.Min(movePerSearch, path.Count - 1);
 
         for (int i = 1; i <= moveCount; i++)
         {
             yield return MoveToCell(path[i]);
+        }
+
+        // AI_BMK, AI_MYJ, AStarAI 각각 TakeTurn() 끝에 추가
+        if (WorldToGrid(transform.position) == goal)
+        {
+            if (GameEndManager.Instance != null)
+                GameEndManager.Instance.OnAIReached();
         }
     }
 

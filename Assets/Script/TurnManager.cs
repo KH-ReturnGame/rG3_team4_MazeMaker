@@ -72,6 +72,9 @@ public class TurnManager : MonoBehaviour
         currentTurn = TurnState.AITurn;
         Debug.Log("AI 턴");
 
+
+        yield return new WaitForSeconds(1.0f);
+
         // 카메라 AI에 포커스
         yield return CameraController.Instance.FocusOnAI(selectedAITransform);
 

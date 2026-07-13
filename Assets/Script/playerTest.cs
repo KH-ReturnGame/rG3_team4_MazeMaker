@@ -132,8 +132,8 @@ public class PlayerTest : MonoBehaviour
 
                 Debug.Log("Player Win!");
 
-                if (GameManager.Instance != null)
-                    GameManager.Instance.OnPlayerReached();
+                if (GameEndManager.Instance != null)
+                    GameEndManager.Instance.OnPlayerReached();
             }
         }
     }
