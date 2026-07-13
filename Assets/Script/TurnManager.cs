@@ -14,9 +14,7 @@ public class TurnManager : MonoBehaviour
     public MazeData mazeData;
 
     private bool playerActionUsed;
-
-    // 실제 선택된 AI 코루틴만 실행하기 위한 참조
-    private MonoBehaviour selectedAI;
+    private Transform selectedAITransform;
 
     void Awake()
     {
@@ -31,27 +29,25 @@ public class TurnManager : MonoBehaviour
 
     void ActivateSelectedAI()
     {
-        // 일단 전부 비활성화
         ai_BMK.gameObject.SetActive(false);
         ai_MYJ.gameObject.SetActive(false);
         ai_AStar.gameObject.SetActive(false);
 
-        // 선택된 AI만 활성화
         switch (mazeData.selectedAI)
         {
             case 0:
                 ai_BMK.gameObject.SetActive(true);
-                selectedAI = ai_BMK;
+                selectedAITransform = ai_BMK.transform;
                 Debug.Log("AI_BMK 활성화");
                 break;
             case 1:
                 ai_MYJ.gameObject.SetActive(true);
-                selectedAI = ai_MYJ;
+                selectedAITransform = ai_MYJ.transform;
                 Debug.Log("AI_MYJ 활성화");
                 break;
             case 2:
                 ai_AStar.gameObject.SetActive(true);
-                selectedAI = ai_AStar;
+                selectedAITransform = ai_AStar.transform;
                 Debug.Log("AStarAI 활성화");
                 break;
         }
@@ -76,13 +72,19 @@ public class TurnManager : MonoBehaviour
         currentTurn = TurnState.AITurn;
         Debug.Log("AI 턴");
 
-        // 선택된 AI만 TakeTurn 실행
+        // 카메라 AI에 포커스
+        yield return CameraController.Instance.FocusOnAI(selectedAITransform);
+
+        // 선택된 AI 턴 실행
         if (mazeData.selectedAI == 0)
             yield return StartCoroutine(ai_BMK.TakeTurn());
         else if (mazeData.selectedAI == 1)
             yield return StartCoroutine(ai_MYJ.TakeTurn());
         else if (mazeData.selectedAI == 2)
             yield return StartCoroutine(ai_AStar.TakeTurn());
+
+        // 카메라 원래대로 복귀
+        yield return CameraController.Instance.ReturnToDefault();
 
         StartPlayerTurn();
     }
