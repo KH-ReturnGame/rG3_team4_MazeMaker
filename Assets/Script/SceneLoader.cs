@@ -9,7 +9,11 @@ public class SceneLoader : MonoBehaviour
     {
         mazeData.selectedAI = Random.Range(0, 3);
         Debug.Log($"º±≈√µ» AI: {mazeData.selectedAI} (0=BMK, 1=MYJ, 2=AStar)");
-
         SceneManager.LoadScene("RouletteScene");
+    }
+
+    public void LoadPlayerBattleScene()
+    {
+        SceneManager.LoadScene("PlayerBattleScene");
     }
 }

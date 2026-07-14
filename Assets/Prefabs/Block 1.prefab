@@ -12,9 +12,9 @@ GameObject:
   - component: {fileID: 3576857865539275598}
   - component: {fileID: 5308949477084881824}
   - component: {fileID: -2123837741825162335}
-  - component: {fileID: 5145433616256108869}
+  - component: {fileID: -5587266443731400835}
   m_Layer: 0
-  m_Name: Block
+  m_Name: Block 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -84,8 +84,8 @@ SpriteRenderer:
   m_SortingLayer: 4
   m_SortingOrder: 2
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Sprite: {fileID: 3238101635327184801, guid: e1481d41b08fdfc4d861f32df73f8f5b, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -132,7 +132,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1}
+    oldSize: {x: 1.0033333, y: 1.0033333}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -154,7 +154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Tile
   type: 0
   point: 0
---- !u!114 &5145433616256108869
+--- !u!114 &-5587266443731400835
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -163,6 +163,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 2963598434542922479}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e7da0f3f2fd977547a286c142263fc43, type: 3}
+  m_Script: {fileID: 11500000, guid: e4baf4439a2ee0a41a9263dca89e2a2a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Object
+  m_EditorClassIdentifier: Assembly-CSharp::ObjectBattle

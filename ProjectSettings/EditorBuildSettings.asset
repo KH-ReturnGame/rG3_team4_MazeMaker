@@ -9,16 +9,19 @@ EditorBuildSettings:
     path: Assets/Scenes/ImageTestScene.unity
     guid: dc0ab4c40ff6b634894bbc1b96587719
   - enabled: 1
+    path: Assets/Scenes/Title.unity
+    guid: f02d02bfab62be645a9262c29fcdc179
+  - enabled: 1
     path: Assets/Scenes/MazeMakingScene.unity
     guid: 16c8d55a98534334393f1659cba7b632
+  - enabled: 1
+    path: Assets/Scenes/RouletteScene.unity
+    guid: 864eb5fce180b2c4dbce3543f86061be
   - enabled: 1
     path: Assets/Scenes/AIEscapeScene.unity
     guid: 01a2d402581a32842bbcc3f344d62301
   - enabled: 1
-    path: Assets/Scenes/Title.unity
-    guid: f02d02bfab62be645a9262c29fcdc179
-  - enabled: 1
-    path: Assets/Scenes/RouletteScene.unity
-    guid: 864eb5fce180b2c4dbce3543f86061be
+    path: Assets/Scenes/PlayerBattleScene.unity
+    guid: 3574651ee4b13f74faf856e21c3bae94
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}

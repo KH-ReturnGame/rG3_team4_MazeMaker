@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Object : MonoBehaviour
+public class ObjectBattle : MonoBehaviour
 {
     private Vector3 offset;
     private bool placed = false;
@@ -14,7 +14,8 @@ public class Object : MonoBehaviour
 
     void OnMouseDown()
     {
-        if (!TurnManager.Instance.CanPlayerAct())
+        if (!TurnManagerBattle.Instance.CanPlayerAct() &&
+            !TurnManagerBattle.Instance.CanPlayer2Act())
             return;
 
         originalSlot = transform.parent;
@@ -25,7 +26,7 @@ public class Object : MonoBehaviour
         mouseWorldPos.z = 0;
         offset = transform.position - mouseWorldPos;
 
-        MazeData mazeData = TurnManager.Instance.mazeData;
+        MazeData mazeData = TurnManagerBattle.Instance.mazeData;
         float mapMinX = -8.0f;
         float mapMinY = -4.5f;
         float cellSize = 0.5f;
@@ -81,7 +82,7 @@ public class Object : MonoBehaviour
         transform.position = snappedPos;
         placed = true;
 
-        MazeData mazeData = TurnManager.Instance.mazeData;
+        MazeData mazeData = TurnManagerBattle.Instance.mazeData;
         float mapMinX = -8.0f;
         float mapMinY = -4.5f;
         float cellSize = 0.5f;
@@ -95,11 +96,14 @@ public class Object : MonoBehaviour
             int idx = gridX + gridY * mazeData.cols;
             mazeData.tileTypes[idx] = 0;
             Debug.Log($"블록 배치: 그리드({gridX},{gridY}) → 벽 처리");
-            Debug.Log("Object MazeData = " + mazeData.GetInstanceID());
         }
 
         CameraShaker.Instance.Shake();
-        TurnManager.Instance.UsePlayerAction();
+
+        if (TurnManagerBattle.Instance.CanPlayerAct())
+            TurnManagerBattle.Instance.UsePlayerAction();
+        else if (TurnManagerBattle.Instance.CanPlayer2Act())
+            TurnManagerBattle.Instance.UsePlayer2Action();
     }
 
     bool IsInBlockedZone(float x, float y)
@@ -110,8 +114,8 @@ public class Object : MonoBehaviour
 
     bool IsOccupied(Vector3 pos)
     {
-        Object[] allObjects = FindObjectsByType<Object>(FindObjectsSortMode.None);
-        foreach (Object obj in allObjects)
+        ObjectBattle[] allObjects = FindObjectsByType<ObjectBattle>(FindObjectsSortMode.None);
+        foreach (ObjectBattle obj in allObjects)
         {
             if (obj == this) continue;
             if (obj.placed && Vector3.Distance(obj.transform.position, pos) < 0.1f)
