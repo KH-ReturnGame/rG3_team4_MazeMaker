@@ -14,6 +14,10 @@ public class MazeAutoGenerator : MonoBehaviour
 
     public float cellSize = 0.5f;
 
+    [Header("생성 설정")]
+    [Range(0f, 1f)]
+    public float blockRate = 0.35f;   // DFS 벽 중 실제로 남길 비율 (1/4)
+
     private float mapMinX = -8.0f;
     private float mapMaxX = 5.5f;
     private float mapMinY = -4.5f;
@@ -47,7 +51,7 @@ public class MazeAutoGenerator : MonoBehaviour
         rows = Mathf.RoundToInt(
             (mapMaxY - mapMinY) / cellSize);
 
-        GenerateRandomMap();
+        GenerateMazeDFS();
 
         // MazeData에게 저장을 맡긴다.
         mazeData.SaveData(
@@ -63,25 +67,41 @@ public class MazeAutoGenerator : MonoBehaviour
         PlacePointers();
     }
 
-    void GenerateRandomMap()
+    void GenerateMazeDFS()
     {
-        isWall = new bool[cols, rows];
-
         playerStart = new Vector2Int(0, 0);
         goal = new Vector2Int(cols / 2, rows / 2);
         aiStart = new Vector2Int(cols - 1, rows - 1);
 
-        float blockRate = 0.15f;
+        // 1단계: DFS로 완성된 미로 구조를 만든다
+        bool[,] mazeWall = new bool[cols, rows];
 
         for (int x = 0; x < cols; x++)
         {
             for (int y = 0; y < rows; y++)
             {
-                isWall[x, y] =
-                    Random.value < blockRate;
+                mazeWall[x, y] = true;
             }
         }
 
+        bool[,] visited = new bool[cols, rows];
+        DFS(0, 0, visited, mazeWall);
+
+        // 2단계: DFS가 만든 벽 중 blockRate 확률로만 실제 설치
+        isWall = new bool[cols, rows];
+
+        for (int x = 0; x < cols; x++)
+        {
+            for (int y = 0; y < rows; y++)
+            {
+                if (mazeWall[x, y] && Random.value < blockRate)
+                    isWall[x, y] = true;
+                else
+                    isWall[x, y] = false;
+            }
+        }
+
+        // 3단계: 주요 지점 확보
         isWall[playerStart.x,
                playerStart.y] = false;
 
@@ -146,6 +166,53 @@ public class MazeAutoGenerator : MonoBehaviour
                     isWall[x, y] = false;
                 }
             }
+        }
+    }
+
+    void DFS(
+        int cx,
+        int cy,
+        bool[,] visited,
+        bool[,] mazeWall)
+    {
+        visited[cx, cy] = true;
+        mazeWall[cx, cy] = false;
+
+        int[] dirs = { 0, 1, 2, 3 };
+        ShuffleArray(dirs);
+
+        foreach (int dir in dirs)
+        {
+            int nx = cx;
+            int ny = cy;
+            int mx = cx;
+            int my = cy;
+
+            if (dir == 0) { ny += 2; my += 1; }
+            else if (dir == 1) { ny -= 2; my -= 1; }
+            else if (dir == 2) { nx -= 2; mx -= 1; }
+            else if (dir == 3) { nx += 2; mx += 1; }
+
+            if (nx < 0 ||
+                nx >= cols ||
+                ny < 0 ||
+                ny >= rows)
+                continue;
+
+            if (visited[nx, ny])
+                continue;
+
+            mazeWall[mx, my] = false;
+            DFS(nx, ny, visited, mazeWall);
+        }
+    }
+
+    void ShuffleArray(int[] arr)
+    {
+        for (int i = arr.Length - 1; i > 0; i--)
+        {
+            int j = Random.Range(0, i + 1);
+            (arr[i], arr[j]) = (arr[j], arr[i]);
         }
     }
 

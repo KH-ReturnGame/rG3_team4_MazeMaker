@@ -594,7 +594,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerTest
   mazeData: {fileID: 11400000, guid: ec5d0f2f525e9b94a815f84c5fed5e50, type: 2}
-  moveSpeed: 6
+  moveSpeed: 2
   cellSize: 0.5
 --- !u!212 &399642062
 SpriteRenderer:
@@ -1109,6 +1109,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameEndManager
   winCanvas: {fileID: 702024610}
   loseCanvas: {fileID: 1531751543}
+  player2WinCanvas: {fileID: 0}
 --- !u!4 &727575683
 Transform:
   m_ObjectHideFlags: 0
