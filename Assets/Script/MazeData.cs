@@ -19,6 +19,24 @@ public class MazeData : ScriptableObject
     public int aiStartY;
 
     public int selectedAI;
+    public bool hasMaze = false;
+
+    public void ClearData()
+    {
+        hasMaze = false;
+
+        cols = 0;
+        rows = 0;
+
+        isWall = null;
+        tileTypes = null;
+
+        startX = startY = 0;
+        endX = endY = 0;
+        aiStartX = aiStartY = 0;
+
+        selectedAI = 0;
+    }
 
     public void SaveData(
         int cols,
@@ -53,5 +71,6 @@ public class MazeData : ScriptableObject
                 tileTypes[index] = walls[x, y] ? 0 : 3;
             }
         }
+        hasMaze = true;
     }
 }
